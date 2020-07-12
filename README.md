@@ -1,2 +1,3 @@
 # algorithms
-- stack data structures
+## Data structures:
+- stack;
