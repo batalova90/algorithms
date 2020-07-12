@@ -1,2 +1,2 @@
 # algorithms
-- add data structures
+- stack data structures
