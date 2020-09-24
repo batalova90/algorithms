@@ -1,0 +1,376 @@
+#include <iostream>
+#include <list>
+#include <vector>
+#include <string>
+#include <queue>
+#include <stack>
+
+
+
+class Graph
+{
+private:
+    class verge
+    {
+    public:
+        std::list<int> neighborVerges;
+        int parent;
+        std::string color;
+        std::vector<int> distance;
+       
+        int discoveryTime;
+        int finishingtime;
+        verge() : neighborVerges(), parent(0), color("white") ,distance(),
+                    discoveryTime(0), finishingtime(0){}
+    };
+
+
+    int capacity{ 5 };
+    std::vector<verge> arrayVerges;
+    bool checkCyclicGraph{false};
+    bool checkbfs{false};
+    bool checkdfs{false};
+    std::string cyclicEdges{""};
+    std::stack<int> topologicalSortStack;
+   
+    void dfs()
+    {
+        checkdfs = 1;
+       
+       for(auto temp : arrayVerges)
+       {
+           temp.color = "white";
+           temp.parent = 0;
+       }
+       int time = 0;
+       int v = 0;
+       for(auto temp : arrayVerges)
+       {
+           v++;
+           if(temp.color == "white")
+           {
+               dfsVisit(v, time);
+           }
+       }
+       
+    }
+   
+    void dfsVisit(int v, int time)
+    {
+        time++;
+        arrayVerges[v - 1].discoveryTime = time;
+        arrayVerges[v - 1].color = "gray";
+        for(auto temp : arrayVerges[v - 1].neighborVerges)
+        {
+            if (temp != 0)
+            {
+                if (arrayVerges[temp - 1].color == "white")
+                {
+                    arrayVerges[temp - 1].parent = v;
+                    //v = temp;
+                    dfsVisit(temp, time);
+                }
+                else if(arrayVerges[temp - 1].color == "gray")
+                {
+                    checkCyclicGraph = true;
+                    checkdfs = 0;
+                    cyclicEdges = cyclicEdges + std::to_string(v) + " -> " + std::to_string(temp) + " || ";
+                }
+            }
+        }
+        arrayVerges[v - 1].color = "black";
+        time++;
+        arrayVerges[v - 1].finishingtime = time;
+        topologicalSortStack.push(v);
+       
+    }
+   
+    inline void copyDistance(const std::vector<int>& distance, int position)
+    {
+        arrayVerges[position].distance.resize(capacity, 0);
+        for(int i = 0; i < arrayVerges[position].distance.size(); i++)
+        {
+            arrayVerges[position].distance[i] = distance[i];
+        }
+    }
+
+    inline void copyTopologicalSortStack(const std::stack<int>& otherStack)
+    {
+       topologicalSortStack = otherStack;
+    }
+   
+    inline void copyNeighborVerges(const std::list<int>& otherNeighborVerges, int position)
+    {
+            for(auto temp : otherNeighborVerges)
+            {
+                arrayVerges[position].neighborVerges.push_back(temp);
+            }
+    }
+     
+    void copyClassFieldsBFS(const Graph& other)
+    {
+        for(int i = 0; i < other.arrayVerges.size(); i++)
+        {
+            copyNeighborVerges(other.arrayVerges[i].neighborVerges, i);
+            arrayVerges[i].parent = other.arrayVerges[i].parent;
+
+        }
+    }
+    void copyClassFieldsDFS(const Graph& other)
+    {
+        for(int i = 0; i < other.arrayVerges.size(); i++)
+        {
+            copyNeighborVerges(other.arrayVerges[i].neighborVerges, i);
+            arrayVerges[i].color = other.arrayVerges[i].color;
+            arrayVerges[i].finishingtime = other.arrayVerges[i].finishingtime;
+            arrayVerges[i].discoveryTime = other.arrayVerges[i].discoveryTime;
+            arrayVerges[i].parent = other.arrayVerges[i].parent;
+        }
+    }
+
+public:
+    Graph(int capacity_) : capacity(capacity_), arrayVerges(capacity_) {}
+    Graph() : capacity(0), arrayVerges() {}
+
+    ~Graph()
+    /*{
+
+        for (int i = 0; i < arrayVerges.size(); i++)
+        {
+            if (!arrayVerges[i].neighborVerges.empty())
+            {
+                arrayVerges[i].neighborVerges.clear();
+            }
+        }
+
+        arrayVerges.clear(); 
+    }*/
+   
+    Graph(const Graph &other) : capacity(other.capacity), arrayVerges(capacity), checkCyclicGraph(other.checkCyclicGraph),
+                                checkbfs(other.checkbfs), checkdfs(other.checkdfs), cyclicEdges(other.cyclicEdges),
+                                topologicalSortStack(other.topologicalSortStack)
+    {
+       
+        if(checkbfs)
+            copyClassFieldsBFS(other);
+           
+        if(checkdfs and !checkCyclicGraph)
+            copyClassFieldsDFS(other);
+           
+        for(int i = 0; i < capacity; i++)
+            copyDistance(other.arrayVerges[i].distance, i);
+       
+       
+    }
+    void InsertNeighborVerges(int verge, std::vector<int> const& neighbor)
+    {
+        for (auto& element : neighbor)
+        {
+            arrayVerges[verge - 1].neighborVerges.push_back(element);
+
+            arrayVerges[verge - 1].distance.resize(capacity, 0);
+           
+        }
+    }
+
+    void PrintNeighborVerges(int verge_) const
+    {
+        std::cout << "Соседи вершины " << verge_ << ":" << std::endl;
+        for (int i : arrayVerges[verge_ - 1].neighborVerges)
+            std::cout << i << " ";
+        std::cout << std::endl;
+    }
+
+    friend std::ostream& operator << (std::ostream& out, const Graph graph);
+
+    inline void bfs(int u) //на вход вершина, с которой начинаем поиск
+    {
+        std::vector<bool>used(capacity, 0);
+        std::queue<int> q;
+        checkdfs = 0;
+        q.push(u);
+
+        while (!q.empty())
+        {
+            int x = q.front();
+            q.pop();
+
+            for (auto it = arrayVerges[x - 1].neighborVerges.begin(); it != arrayVerges[x - 1].neighborVerges.end(); it++) //бегаем по списку и открываем вершины
+            {
+                int v = *(it);
+
+                if (v != 0 and !used[v - 1])
+                {
+                    used[v - 1] = 1;
+                    arrayVerges[u - 1].distance[v - 1] = arrayVerges[u - 1].distance[x - 1] + 1;
+                    arrayVerges[v - 1].parent = x;
+                    q.push(v);
+                }
+            }
+        }
+       
+    }
+
+    inline void printDistance(int verge)
+    {
+        int counter(1);
+       
+        if(checkbfs)
+        {
+            //отдельная функция
+            std::cout << "Вершина " << verge << std::endl;
+            for (int x : arrayVerges[verge - 1].distance)
+            {
+                std::cout << "Расстояние до вершины [ " << counter << " ] " << x << std::endl;
+                counter++;
+            }
+        }
+        else
+            {
+                bfs(verge);
+                //отдельная функция!!!
+                std::cout << "Вершина " << verge << std::endl;
+                for (int x : arrayVerges[verge - 1].distance)
+                {
+                    std::cout << "Расстояние до вершины [ " << counter << " ] " << x << std::endl;
+                    counter++;
+                }
+            }
+    }
+
+    void bfsAllVerges()
+    {
+        for (int i = 0; i < arrayVerges.size(); i++)
+        {
+            bfs(i + 1);
+            checkbfs = 1;
+        }
+    }
+
+    void printDistanceAllVerges()
+    {
+        for (int i = 0; i < capacity; i++)
+            printDistance(i + 1);
+    }
+   
+    void printPath(int originalVerge, int destinationVerge)
+    {
+        if (checkbfs)
+        {
+            path(originalVerge, destinationVerge);
+        }
+        else
+        {
+            bfs(originalVerge);
+            path(originalVerge, destinationVerge);
+        }  
+    }
+   
+    void path(int originalVerge, int destinationVerge)
+    {
+        if (originalVerge == destinationVerge)
+            std::cout << originalVerge << std::endl;
+        else if(arrayVerges[destinationVerge - 1].parent == 0)
+            std::cout << "No path from verge " << originalVerge << " to " << destinationVerge << std::endl;
+        else
+            printPath(originalVerge, arrayVerges[destinationVerge - 1].parent);
+            std::cout<< " -- " << destinationVerge ;
+    }
+   
+   
+   
+    const std::string getCyclicEdges() const
+    {
+        if(checkCyclicGraph)
+            return cyclicEdges;
+        else
+            return "The graph is acyclic";
+           
+       
+    }
+   
+    void topologicalSort()
+        {
+            if(!checkdfs)
+                dfs();
+        }
+       
+   
+   
+    void getTopologicalSortList()
+    {
+        topologicalSort();
+        if(checkCyclicGraph)
+            std::cout << "\n The graph is cycle" << std::endl;
+        else
+        {
+            std::cout << std::endl;
+            int temp;
+            while(!topologicalSortStack.empty())
+            {
+                temp = topologicalSortStack.top();
+                topologicalSortStack.pop();
+                std::cout << temp << " ";      
+            }
+            std::cout << std::endl;
+            checkdfs = 0;
+        }
+    }
+   
+    const bool getCheckCyclic() const
+    {
+        return checkCyclicGraph;
+    }
+   
+   Graph& operator =(const Graph& other)
+   {
+       if(this == &other)
+            return *this;
+           
+       capacity = other.capacity;
+       arrayVerges.resize(capacity);
+       
+       checkCyclicGraph = other.checkCyclicGraph;
+       checkbfs = other.checkbfs;
+       cyclicEdges = other.cyclicEdges;
+       topologicalSortStack = other.topologicalSortStack;
+       
+       if(checkbfs)
+       {
+            copyClassFieldsBFS(other);
+            for(int i = 0; i < capacity; i++)
+                copyDistance(other.arrayVerges[i].distance, i);
+       }   
+        
+        if(checkdfs and !checkCyclicGraph)
+            copyClassFieldsDFS(other);
+          
+        return *this;
+   }
+   
+   bool existPath(int originalVerge, int destinationVerge )
+   {
+       path(originalVerge, destinationVerge);
+        if(arrayVerges[originalVerge - 1].distance[destinationVerge - 1] != 0)
+            return 1;
+        else
+            return 0;
+   }
+   
+   
+};
+
+std::ostream& operator << (std::ostream& out, const Graph graph)
+{
+    for (int i = 0; i < graph.arrayVerges.size(); i++)
+    {
+        std::cout << "Вершина графа " << i + 1 << std::endl;
+        std::cout << "Cоседи: ";
+        for (auto j : graph.arrayVerges[i].neighborVerges)
+            std::cout << j << " ";
+        std::cout << std::endl << "--------------------------" << std::endl;
+    }
+
+    return out;
+
+}
