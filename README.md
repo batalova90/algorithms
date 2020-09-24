@@ -4,3 +4,4 @@
 - list;
 - LUP Decomposition;
 - Sorted algorithms.
+- ClassGraph(bfs, dfs, topologicalsort)
