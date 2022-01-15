@@ -88,9 +88,6 @@ void Merge(T* array, int p, int q, int r)
 
     T* copyArray1 = new T[n1 + 1];
     T* copyArray2 = new T[n2 + 1];
-    //Копируем данные из исходного массива
-    //CopyArray(array, copyArray1, n1, 0);
-    //CopyArray(array, copyArray2, n2, q + 1);
     for (int i = 0; i < n1; i++)
     {
         copyArray1[i] = array[i + p];
@@ -116,15 +113,11 @@ void Merge(T* array, int p, int q, int r)
             j++;
         }
     }
-
-    //delete[] copyArray1;
-    //delete[] copyArray2;
 }
 
 template <typename T>
 void CopyArray(T* sourceArray, T* arrayToCopy, int size, int offset)
 {
-    //std::cout << " Проверка на копирование: ";
     for (int i = 0; i < size; i++)
     {
         arrayToCopy[i] = sourceArray[i + offset];
