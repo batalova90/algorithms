@@ -28,20 +28,6 @@ int Partition(T* array, int left, int right)
     return i;
 }
 
-//template<typename T>
-//int RandomizePartition(T* array, int p, int r)
-//{
-//    srand(time(NULL));
-//    int q;
-//
-//    if (r != p)
-//    {
-//        q = rand() % (r - p);
-//        ChangeElements(array, q, r);
-//    }
-//    return Partition(array, p, r);
-//}
-
 
 template<typename T>
 void QuickSort(T* sourceArray, int left, int right)
