@@ -228,7 +228,6 @@ public:
         else
             {
                 bfs(verge);
-                //отдельная функция!!!
                 std::cout << "Вершина " << verge << std::endl;
                 for (int x : arrayVerges[verge - 1].distance)
                 {
