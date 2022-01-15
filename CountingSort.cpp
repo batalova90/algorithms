@@ -28,10 +28,6 @@ int* CountingSort(int* sourceArray, int size, int max)
         buffer[sourceArray[i]]--;
     }
     
-    //for(int i = 0; i < size; i++)
-        //std::cout << array[i] << " ";
-    //std::cout << std::endl;
-    
     return array;
 }
 
@@ -41,8 +37,6 @@ int main()
     
     int n{0}, maxA{0};
     std::cin >> n;
-    //std::cout << "Введите максимальное значение генерируемых чисел: " << std::endl;
-    //std:: cin >> maxA;
     int * A = new int [n];
     int* B = new int [n];
     int index = 0;
