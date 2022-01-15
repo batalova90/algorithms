@@ -183,10 +183,7 @@ template <typename T> void List<T>::print_file() //создание выходн
       using namespace std;
      Node<T> *current = this->head;
       string output = "../bin/output.txt";
-      //Очистка файла Вынести в отдельный метод
       ofstream fout;
-      //fout.open(output);
-      //fout.close();
      fout.open(output, ofstream::app);
      if (!fout.is_open())
      {
@@ -318,15 +315,11 @@ template <typename T> void List<T>::Afin_code(int key_1, int key_2)
          setlocale(LC_ALL, "ru");
 
          int k, m;
-         //std:: cout << "Введите ключ для шифрования: " << std::endl;
-         //std:: cin >> k;
          List<char> Symbol;
          Symbol.read_List();
-         //Symbol.Caesar_code(k);
          Symbol.print_file();
          std::cout << "Введите ключи для широфания Афинный шифр: "<< std::endl;
          std:: cin >> k >> m;
-         //Symbol.read_List();
          Symbol.Afin_code(k, m);
          Symbol.print_file();
          return 0;
